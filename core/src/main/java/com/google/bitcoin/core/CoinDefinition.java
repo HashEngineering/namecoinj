@@ -46,6 +46,7 @@ public class CoinDefinition {
     public static final CoinHash coinPOWHash = CoinHash.scrypt;
 
     public static boolean checkpointFileSupport = true;
+    public static int checkpointDaysBack = 21;
     //Original Values
     public static final int TARGET_TIMESPAN_0 = (int)(6 * 60 * 3 * 20);  // 3.5 days per difficulty cycle, on average.
     public static final int TARGET_SPACING_0 = (int)(1 * 20);  // 20 seconds per block.
@@ -145,13 +146,18 @@ public class CoinDefinition {
 
     //net.cpp strDNSSeed
     static public String[] dnsSeeds = new String[] {
+            "dgc1.seed.nodes.mywl.lt",
+            "dgc2.seed.nodes.mywl.lt",
+            "dgc3.seed.nodes.mywl.lt",
+            "dgc4.seed.nodes.mywl.lt",
             //"direct.crypto-expert.com",         //offline
             //"207.12.89.119",                    //offline
             //"198.50.30.145",                    //offline
+
             "178.237.35.34",
             "dgc.kadaplace.com",
             //"dnsseed.digitalcoin.co",            //offline
-            "dnsseed.rc.altcointech.net",
+            //"dnsseed.rc.altcointech.net",
             "54.208.77.156",
             "68.14.170.140",
 
