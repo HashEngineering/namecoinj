@@ -21,6 +21,9 @@ public class CoinDefinition {
     public static final String cryptsyMarketId = "26";
     public static final String cryptsyMarketCurrency = "BTC";
     public static final String PATTERN_PRIVATE_KEY_START = "6";
+    public static final String PATTERN_PRIVATE_KEY_START_COMPRESSED = "[Q]";
+    public static final String PATTERN_PRIVATE_KEY_START_TESTNET = "9";
+    public static final String PATTERN_PRIVATE_KEY_START_COMPRESSED_TESTNET = "c";
 
     public static String lowerCaseCoinName() { return coinName.toLowerCase(); }
 
@@ -38,6 +41,14 @@ public class CoinDefinition {
     public static final String BLOCKEXPLORER_BASE_URL_TEST = BLOCKEXPLORER_BASE_URL_PROD;
 
     public static final String DONATION_ADDRESS = "DPdbL3n3Y3ypwVEvY3wABmpbjsd3AVqm5M";  //HashEngineering donation DGC address
+
+    public static final String UNSPENT_API_URL = "http://dgc.blockr.io/api/v1/address/unspent/";
+    public enum UnspentAPIType {
+        BitEasy,
+        Blockr,
+        Abe
+    };
+    public static final UnspentAPIType UnspentAPI = UnspentAPIType.Blockr;
 
     enum CoinHash {
         SHA256,
@@ -108,8 +119,8 @@ public class CoinDefinition {
     public static final BigInteger MAX_MONEY = BigInteger.valueOf(200000000).multiply(Utils.COIN);                 //main.h:  MAX_MONEY
     //public static final String MAX_MONEY_STRING = "200000000";     //main.h:  MAX_MONEY
 
-    public static final BigInteger DEFAULT_MIN_TX_FEE = BigInteger.valueOf(10000000);   // MIN_TX_FEE
-    public static final BigInteger DUST_LIMIT = Utils.CENT; //main.h CTransaction::GetMinFee        0.01 coins
+    public static final BigInteger DEFAULT_MIN_TX_FEE = BigInteger.valueOf(1000);   // MIN_TX_FEE
+    public static final BigInteger DUST_LIMIT = BigInteger.valueOf(1000000); //main.h CTransaction::GetMinFee        0.01 coins
 
     public static final int PROTOCOL_VERSION = 60002;          //version.h PROTOCOL_VERSION
     public static final int MIN_PROTOCOL_VERSION = 60002;        //version.h MIN_PROTO_VERSION - eliminate 60001 which are on the wrong fork
@@ -118,7 +129,7 @@ public class CoinDefinition {
     public static final int MAX_BLOCK_SIZE = 1 * 1000 * 1000;
 
 
-    public static final boolean supportsBloomFiltering = false; //Requires PROTOCOL_VERSION 70000 in the client
+    public static final boolean supportsBloomFiltering = true; //Requires PROTOCOL_VERSION 70000 in the client
     public static boolean supportsIrcDiscovery() {
         return PROTOCOL_VERSION <= 70000;
     }
