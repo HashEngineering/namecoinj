@@ -129,7 +129,7 @@ public class CoinDefinition {
     public static final int MAX_BLOCK_SIZE = 1 * 1000 * 1000;
 
 
-    public static final boolean supportsBloomFiltering = true; //Requires PROTOCOL_VERSION 70000 in the client
+    public static final boolean supportsBloomFiltering = false; //Requires PROTOCOL_VERSION 70000 in the client
     public static boolean supportsIrcDiscovery() {
         return PROTOCOL_VERSION <= 70000;
     }
