@@ -584,6 +584,15 @@ public class Script {
             throw new ScriptException("Script attempted to use an integer larger than 4 bytes");
         return Utils.decodeMPI(Utils.reverseBytes(chunk), false);
     }
+
+    public boolean hasOpCode(int opCode)
+    {
+        for (ScriptChunk chunk : this.chunks) {
+            if(chunk.isOpCode() && chunk.equalsOpCode(opCode))
+                return true;
+        }
+        return false;
+    }
     
     private static void executeScript(Transaction txContainingThis, long index,
                                       Script script, LinkedList<byte[]> stack) throws ScriptException {

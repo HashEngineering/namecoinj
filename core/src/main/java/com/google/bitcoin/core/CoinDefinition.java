@@ -74,6 +74,8 @@ public class CoinDefinition {
     private static int nDifficultySwitchHeight = 476280;    //retarget every 108 instead of 1080 blocks; adjust by +100%/-50% instead of +400/-75%
     private static int nInflationFixHeight = 523800;        //increase block time to 40 from 20 seconds; decrease reward from 20 to 15 DGC
     private static int nDifficultySwitchHeightTwo = 625800; //retarget adjust changed
+    public static final int V3_FORK = 1028000;
+    public static final int MAX_BLOCK_ALGO_COUNT = 3;
 
 
 
@@ -119,11 +121,12 @@ public class CoinDefinition {
     public static final BigInteger MAX_MONEY = BigInteger.valueOf(200000000).multiply(Utils.COIN);                 //main.h:  MAX_MONEY
     //public static final String MAX_MONEY_STRING = "200000000";     //main.h:  MAX_MONEY
 
-    public static final BigInteger DEFAULT_MIN_TX_FEE = BigInteger.valueOf(1000);   // MIN_TX_FEE
+    public static final BigInteger DEFAULT_MIN_TX_FEE = BigInteger.valueOf(10000000);   // MIN_TX_FEE
     public static final BigInteger DUST_LIMIT = BigInteger.valueOf(1000000); //main.h CTransaction::GetMinFee        0.01 coins
 
-    public static final int PROTOCOL_VERSION = 60002;          //version.h PROTOCOL_VERSION
-    public static final int MIN_PROTOCOL_VERSION = 60002;        //version.h MIN_PROTO_VERSION - eliminate 60001 which are on the wrong fork
+    public static final int PROTOCOL_VERSION = 3000000;          //version.h PROTOCOL_VERSION
+    public static final int MIN_PROTOCOL_VERSION = 60001;        //version.h MIN_PROTO_VERSION - eliminate 60001 which are on the wrong fork
+    public static final int INIT_PROTO_VERSION = 209;            //version.h
 
     public static final int BLOCK_CURRENTVERSION = 1;   //CBlock::CURRENT_VERSION
     public static final int MAX_BLOCK_SIZE = 1 * 1000 * 1000;
@@ -238,7 +241,11 @@ public class CoinDefinition {
         }
         else if(height < 523800)
         {
-            nSubsidy = Utils.toNanoCoins(20, 0); //2
+            nSubsidy = Utils.toNanoCoins(20, 0); //20
+        }
+        else if(height >= V3_FORK)
+        {
+            nSubsidy = Utils.toNanoCoins(5, 0); //5;
         }
         else
         {
@@ -251,11 +258,19 @@ public class CoinDefinition {
 
     public static BigInteger proofOfWorkLimit = Utils.decodeCompactBits(0x1e0fffffL);  //main.cpp bnProofOfWorkLimit (~uint256(0) >> 20); // digitalcoin: starting difficulty is 1 / 2^12
 
+    public static BigInteger [] proofOfWorkLimits = new BigInteger[] {
+            proofOfWorkLimit,proofOfWorkLimit,proofOfWorkLimit,proofOfWorkLimit,proofOfWorkLimit };
+
+    public static BigInteger getProofOfWorkLimit(int algo)
+    {
+        return proofOfWorkLimits[algo];
+    }
+
     static public String[] testnetDnsSeeds = new String[] {
           "not supported"
     };
     //from main.h: CAlert::CheckSignature
-    public static final String SATOSHI_KEY = "04A9CFD81AF5D53310BE45E6326E706A542B1028DF85D2819D5DE496D8816C83129CE874FE5E3A23B03544BFF35458833779DAB7A6FF687525A4E23CA59F1E2B94";
+    public static final String SATOSHI_KEY = "04016c44069c3152982413d3ba3bf262a3a4d3ddad859ba78e0d744f5c67c2205d2aa2122e6c62b6310dad2d1e2f7e39028455ff1dbb26511c60fc96c8b4560c43";
     public static final String TESTNET_SATOSHI_KEY = "";
 
     /** The string returned by getId() for the main, production network where people trade things. */
@@ -275,6 +290,16 @@ public class CoinDefinition {
         checkpoints.put( 22222, new Sha256Hash("7a58919a24c189f8c286413381e6ed7224c90a4181a7f7cd098825cc75ddec27"));
         checkpoints.put( 480000, new Sha256Hash("a11759fa9ed9c11769dc7ec3c279f523c886ea0ca0b9e1d1a49441c32b701f0d"));
         checkpoints.put( 600308, new Sha256Hash("0cd7f68e0e79a4595abb871fb71fd2db803b34b15da182d23c1568f56611af91"));
+        checkpoints.put( 778389,  new Sha256Hash("5d1c20eda68cf4221885f2e9e0ad47817cca44da24f770f1334ca8cc2b07eb49"));
+        checkpoints.put( 800000,  new Sha256Hash("609f6259e199a0a60705bf4c02d6aee84dc38d7d741f8044b1eec0c636567ebb"));
+        checkpoints.put( 850000,  new Sha256Hash("a52a30db508a3bc3ab71f9bd83573e4ab4289ed8e5b66dc92f862baf6eb80eba"));
+        checkpoints.put( 900000,  new Sha256Hash("254c90e2a47d0f28292bc7d6f5cd8f856eb782d8692a1d923abd9c43749935bc"));
+        checkpoints.put( 950000,  new Sha256Hash("706c8ce10f2c9ffbf90fc10fe683ccabeeafa4e6cf5c8ec320f50319c9ba40a9"));
+        checkpoints.put( 1000000, new Sha256Hash("564e27dc7bf17488c4bf66ba0955cbf075c975f8386ede157be9578da0476356"));
+        checkpoints.put( 1010000, new Sha256Hash("bbe9adc561be01cb37acd71abf42a17e566d05b9cdfed95793db931540805bcf"));
+        checkpoints.put( 1020000, new Sha256Hash("dc51bcc193a2e84bcbdd0448e6e0f5396b4e57c2f43e239d110d1145b147d4c9"));
+        checkpoints.put( 1023000, new Sha256Hash("eaae71b7dae28ab3abfcfa959ae3db50eb4ed93204e36731a54063a4ea8e7218"));
+        checkpoints.put( 1023013, new Sha256Hash("c328d2a8f8b976769a6b0488cbf6dc641902b6eb7db0995befd58e69679af4f8"));
     }
 
     //Unit Test Information

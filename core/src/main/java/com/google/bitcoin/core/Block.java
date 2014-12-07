@@ -38,6 +38,7 @@ import java.util.List;
 import static com.google.bitcoin.core.Utils.doubleDigest;
 import static com.google.bitcoin.core.Utils.doubleDigestTwoBuffers;
 import static com.google.bitcoin.core.Utils.scryptDigest;
+import static com.hashengineering.crypto.X11.x11Digest;
 
 /**
  * <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
@@ -521,7 +522,15 @@ public class Block extends Message {
             throw new RuntimeException(e); // Cannot happen.
         }
     }
-
+    private Sha256Hash calculateX11Hash() {
+        try {
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
+            writeHeader(bos);
+            return new Sha256Hash(Utils.reverseBytes(x11Digest(bos.toByteArray())));
+        } catch (IOException e) {
+            throw new RuntimeException(e); // Cannot happen.
+        }
+    }
     /**
      * Returns the hash of the block (which for a valid, solved block should be below the target) in the form seen on
      * the block explorer. If you call this on block 1 in the production chain
@@ -548,6 +557,12 @@ public class Block extends Message {
     public Sha256Hash getScryptHash() {
         if (scryptHash == null)
             scryptHash = calculateScryptHash();
+        return scryptHash;
+    }
+
+    public Sha256Hash getX11Hash() {
+        if (scryptHash == null)
+            scryptHash = calculateX11Hash();
         return scryptHash;
     }
 
@@ -668,15 +683,23 @@ public class Block extends Message {
         // field is of the right value. This requires us to have the preceeding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
         BigInteger h = null;
-        switch (CoinDefinition.coinPOWHash)
+        int algo = getAlgo();
+
+        switch (algo)
         {
-            case scrypt:
-                    h = getScryptHash().toBigInteger();
-                    break;
-            case SHA256:
-                    h = getHash().toBigInteger();
-                    break;
-            default:  //use the normal getHash() method.
+            case ALGO_SHA256D:
+                h = getHash().toBigInteger();
+                break;
+            case ALGO_SCRYPT:
+            {
+                h = getScryptHash().toBigInteger();
+                break;
+            }
+            case ALGO_X11:
+                h = getX11Hash().toBigInteger();
+
+                break;
+            default:
                 h = getHash().toBigInteger();
                 break;
         }
@@ -1115,4 +1138,39 @@ public class Block extends Message {
     boolean isTransactionBytesValid() {
         return transactionBytesValid;
     }
+
+    public static final int ALGO_SHA256D = 0;
+    public static final int ALGO_SCRYPT  = 1;
+    public static final int ALGO_X11 = 2;
+    public static final int NUM_ALGOS = 3;
+
+    public static int BLOCK_VERSION_DEFAULT = 1;
+
+    // algo
+    public static final int             BLOCK_VERSION_ALGO           = (7 << 9);
+    public static final int             BLOCK_VERSION_SHA256D         = (1 << 9);
+    public static final int             BLOCK_VERSION_X11        = (2 << 9);
+
+
+    public static int GetAlgo(long nVersion)
+    {
+        switch ((int)nVersion & BLOCK_VERSION_ALGO)
+        {
+            case 1:
+                return ALGO_SCRYPT;
+            case BLOCK_VERSION_SHA256D:
+                return ALGO_SHA256D;
+            case BLOCK_VERSION_X11:
+                return ALGO_X11;
+        }
+        return ALGO_SCRYPT;
+    }
+
+    public int getAlgo()
+    {
+        return GetAlgo(version);
+    }
+    String [] algoNames = {"sha256d", "scrypt", "x11"};
+
+    public String getAlgoName() { return algoNames[GetAlgo(version)]; }
 }

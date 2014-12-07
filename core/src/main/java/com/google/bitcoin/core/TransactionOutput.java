@@ -18,6 +18,7 @@ package com.google.bitcoin.core;
 
 import com.google.bitcoin.script.Script;
 import com.google.bitcoin.script.ScriptBuilder;
+import com.google.bitcoin.script.ScriptOpCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,5 +359,10 @@ public class TransactionOutput extends ChildMessage implements Serializable {
         int result = value != null ? value.hashCode() : 0;
         result = 31 * result + (scriptBytes != null ? Arrays.hashCode(scriptBytes) : 0);
         return result;
+    }
+    boolean isOpReturn()
+    {
+        Script script = getScriptPubKey();
+        return script.hasOpCode(ScriptOpCodes.OP_RETURN);
     }
 }

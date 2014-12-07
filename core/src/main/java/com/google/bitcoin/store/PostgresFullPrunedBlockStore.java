@@ -947,6 +947,34 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
                 }
         }
     }
+    final int nMedianTimeSpan=11;
 
+    public long getMedianTimePast(StoredBlock block)
+    {
+        long [] median = new long[nMedianTimeSpan];
+        //int64_t* pbegin = &pmedian[nMedianTimeSpan];
+        //int64_t* pend = &pmedian[nMedianTimeSpan];
+
+        StoredBlock cursor = block;
+        //for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
+        for (int i = 0; i < nMedianTimeSpan && block != null; ++i)
+        {
+            median[nMedianTimeSpan - 1 - i] = cursor.getHeader().getTimeSeconds();
+            //*(--pbegin) = pindex->GetBlockTime();
+
+            try {
+                cursor = cursor.getPrev(this);
+            }
+            catch (BlockStoreException x)
+            {
+                break;
+            }
+
+        }
+        java.util.Arrays.sort(median);
+        //std::sort(pbegin, pend);
+        return median[nMedianTimeSpan/2];
+        //return pbegin[(pend - pbegin)/2];
+    }
 
 }
