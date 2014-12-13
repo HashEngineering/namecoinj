@@ -298,7 +298,7 @@ public class SPVBlockStore implements BlockStore {
     }
     final int nMedianTimeSpan=11;
 
-    public long getMedianTimePast(StoredBlock block)
+    public long getMedianTimePast(StoredBlock block) throws BlockStoreException
     {
         long [] median = new long[nMedianTimeSpan];
         //int64_t* pbegin = &pmedian[nMedianTimeSpan];
@@ -311,13 +311,9 @@ public class SPVBlockStore implements BlockStore {
             median[nMedianTimeSpan - 1 - i] = cursor.getHeader().getTimeSeconds();
             //*(--pbegin) = pindex->GetBlockTime();
 
-            try {
-                cursor = cursor.getPrev(this);
-            }
-            catch (BlockStoreException x)
-            {
-                break;
-            }
+
+            cursor = cursor.getPrev(this);
+
 
         }
         java.util.Arrays.sort(median);

@@ -125,7 +125,7 @@ public class CoinDefinition {
     public static final BigInteger DUST_LIMIT = BigInteger.valueOf(1000000); //main.h CTransaction::GetMinFee        0.01 coins
 
     public static final int PROTOCOL_VERSION = 3000000;          //version.h PROTOCOL_VERSION
-    public static final int MIN_PROTOCOL_VERSION = 60001;        //version.h MIN_PROTO_VERSION - eliminate 60001 which are on the wrong fork
+    public static final int MIN_PROTOCOL_VERSION = 3000000;        //version.h MIN_PROTO_VERSION - eliminate 60001 which are on the wrong fork
     public static final int INIT_PROTO_VERSION = 209;            //version.h
 
     public static final int BLOCK_CURRENTVERSION = 1;   //CBlock::CURRENT_VERSION
@@ -300,6 +300,8 @@ public class CoinDefinition {
         checkpoints.put( 1020000, new Sha256Hash("dc51bcc193a2e84bcbdd0448e6e0f5396b4e57c2f43e239d110d1145b147d4c9"));
         checkpoints.put( 1023000, new Sha256Hash("eaae71b7dae28ab3abfcfa959ae3db50eb4ed93204e36731a54063a4ea8e7218"));
         checkpoints.put( 1023013, new Sha256Hash("c328d2a8f8b976769a6b0488cbf6dc641902b6eb7db0995befd58e69679af4f8"));
+        checkpoints.put( 1028000, new Sha256Hash("000000000365245106be8addeefadc53d613bf97ff0c7d7cc754e9a59addd408"));
+        checkpoints.put( 1028003, new Sha256Hash("58bbb00e2c982744c833fc0555488b3a57236070f4a74e124bdeb2dd2583eda7"));
     }
 
     //Unit Test Information

@@ -1033,8 +1033,13 @@ public abstract class AbstractBlockChain {
     }
     private StoredBlock GetLastBlockForAlgo(StoredBlock block, int algo)
     {
+
         for(;;)
         {
+            if(block.getHeight() < CoinDefinition.V3_FORK && (algo == Block.ALGO_SHA256D||algo == Block.ALGO_X11))
+            {
+                return null;
+            }
             if(block == null || block.getHeader().getPrevBlockHash().equals(Sha256Hash.ZERO_HASH))
                 return null;
             if(block.getHeader().getAlgo() == algo)
@@ -1068,7 +1073,7 @@ public abstract class AbstractBlockChain {
 
     private void checkDifficultyTransitionsV2(StoredBlock storedPrev, Block nextBlock) throws BlockStoreException, VerificationException {
 
-        Block prev = storedPrev.getHeader();
+        //Block prev = storedPrev.getHeader();
         int algo = nextBlock.getAlgo();
         BigInteger proofOfWorkLimit = CoinDefinition.getProofOfWorkLimit(algo);
 
@@ -1078,55 +1083,63 @@ public abstract class AbstractBlockChain {
         {
             first = first.getPrev(blockStore);
         }
+        if(first == null)
+            return; //using checkpoints file
         StoredBlock lastBlockSolved = GetLastBlockForAlgo(storedPrev, algo);
         if(lastBlockSolved == null)
         {
-            verifyDifficulty(proofOfWorkLimit, storedPrev, nextBlock, algo);
+            //verifyDifficulty(storedPrev.getHeader().getDifficultyTargetAsInteger(), storedPrev, nextBlock, algo);
             return;
         }
 
 
         // Limit adjustment step
         // Use medians to prevent time-warp attacks
-        long nActualTimespan = blockStore.getMedianTimePast(storedPrev) - blockStore.getMedianTimePast(first);
-        nActualTimespan = nAveragingTargetTimespan + (nActualTimespan - nAveragingTargetTimespan)/6;
-        //LogPrintf("  nActualTimespan = %d before bounds\n", nActualTimespan);
-        if (nActualTimespan < nMinActualTimespan)
-            nActualTimespan = nMinActualTimespan;
-        if (nActualTimespan > nMaxActualTimespan)
-            nActualTimespan = nMaxActualTimespan;
+        try {
+            long nActualTimespan = blockStore.getMedianTimePast(storedPrev) - blockStore.getMedianTimePast(first);
+            nActualTimespan = nAveragingTargetTimespan + (nActualTimespan - nAveragingTargetTimespan)/6;
+            //LogPrintf("  nActualTimespan = %d before bounds\n", nActualTimespan);
+            if (nActualTimespan < nMinActualTimespan)
+                nActualTimespan = nMinActualTimespan;
+            if (nActualTimespan > nMaxActualTimespan)
+                nActualTimespan = nMaxActualTimespan;
 
 
-        // Global retarget
-        BigInteger newDifficulty;
-        newDifficulty = lastBlockSolved.getHeader().getDifficultyTargetAsInteger();
-        newDifficulty = newDifficulty.multiply(BigInteger.valueOf(nActualTimespan));
-        newDifficulty = newDifficulty.divide(BigInteger.valueOf(nAveragingTargetTimespan));
+            // Global retarget
+            BigInteger newDifficulty;
+            newDifficulty = lastBlockSolved.getHeader().getDifficultyTargetAsInteger();
+            newDifficulty = newDifficulty.multiply(BigInteger.valueOf(nActualTimespan));
+            newDifficulty = newDifficulty.divide(BigInteger.valueOf(nAveragingTargetTimespan));
 
-        // Per-algo retarget
-        int nAdjustments = lastBlockSolved.getHeight() - storedPrev.getHeight() + Block.NUM_ALGOS - 1;
-        if (nAdjustments > 0)
-        {
-            for (int i = 0; i < nAdjustments; i++)
+            // Per-algo retarget
+            int nAdjustments = lastBlockSolved.getHeight() - storedPrev.getHeight() + Block.NUM_ALGOS - 1;
+            if (nAdjustments > 0)
             {
-                //bnNew /= 100 + nLocalDifficultyAdjustment;
-                newDifficulty = newDifficulty.divide(BigInteger.valueOf(100 + nLocalDifficultyAdjustment));
-                //bnNew *= 100;
-                newDifficulty = newDifficulty.multiply(BigInteger.valueOf(100));
+                for (int i = 0; i < nAdjustments; i++)
+                {
+                    //bnNew /= 100 + nLocalDifficultyAdjustment;
+                    newDifficulty = newDifficulty.divide(BigInteger.valueOf(100 + nLocalDifficultyAdjustment));
+                    //bnNew *= 100;
+                    newDifficulty = newDifficulty.multiply(BigInteger.valueOf(100));
+                }
             }
-        }
-        if (nAdjustments < 0)
-        {
-            for (int i = 0; i < -nAdjustments; i++)
+            if (nAdjustments < 0)
             {
-                //bnNew *= 100 + nLocalDifficultyAdjustment;
-                newDifficulty = newDifficulty.multiply(BigInteger.valueOf(100 + nLocalDifficultyAdjustment));
-                //bnNew /= 100;
-                newDifficulty = newDifficulty.divide(BigInteger.valueOf(100));
+                for (int i = 0; i < -nAdjustments; i++)
+                {
+                    //bnNew *= 100 + nLocalDifficultyAdjustment;
+                    newDifficulty = newDifficulty.multiply(BigInteger.valueOf(100 + nLocalDifficultyAdjustment));
+                    //bnNew /= 100;
+                    newDifficulty = newDifficulty.divide(BigInteger.valueOf(100));
+                }
             }
-        }
 
-        verifyDifficulty(newDifficulty, storedPrev, nextBlock, algo);
+            verifyDifficulty(newDifficulty, storedPrev, nextBlock, algo);
+        }
+        catch (BlockStoreException x)
+        {
+            return; //checkpoints file being used.
+        }
     }
     private void verifyDifficulty(BigInteger calcDiff, StoredBlock storedPrev, Block nextBlock, int algo)
     {

@@ -59,6 +59,6 @@ public interface BlockStore {
     /** Closes the store. */
     void close() throws BlockStoreException;
 
-    long getMedianTimePast(StoredBlock block);
+    long getMedianTimePast(StoredBlock block) throws BlockStoreException;
 
 }
