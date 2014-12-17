@@ -35,10 +35,10 @@ public class UnitTestParams extends NetworkParameters {
         addressHeader = CoinDefinition.testnetAddressHeader;
         p2shHeader = CoinDefinition.testnetp2shHeader;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        maxTarget = new BigInteger("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
+        maxTarget = new BigInteger("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
         genesisBlock.setTime(System.currentTimeMillis() / 1000);
         genesisBlock.setDifficultyTarget(Block.EASIEST_DIFFICULTY_TARGET);
-        genesisBlock.solve();
+        //genesisBlock.solve();
         port = CoinDefinition.TestPort;
         interval = 10;
         dumpedPrivateKeyHeader = 128 + CoinDefinition.testnetAddressHeader;

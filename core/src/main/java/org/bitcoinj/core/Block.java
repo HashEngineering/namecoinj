@@ -16,11 +16,12 @@
 
 package org.bitcoinj.core;
 
-import org.bitcoinj.script.Script;
-import org.bitcoinj.script.ScriptBuilder;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.hashengineering.crypto.Groestl;
+import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +37,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.bitcoinj.core.Coin.FIFTY_COINS;
-import static org.bitcoinj.core.Utils.doubleDigest;
 import static org.bitcoinj.core.Utils.doubleDigestTwoBuffers;
-import com.hashengineering.crypto.Groestl;
 
 /**
  * <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.

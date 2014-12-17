@@ -1,9 +1,7 @@
 package org.bitcoinj.core;
 
 import java.math.BigInteger;
-import java.util.Date;
 import java.util.Map;
-import java.util.Vector;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +13,7 @@ import java.util.Vector;
 public class CoinDefinition {
 
 
-    public static final String coinName = "Groestlcoin";
+    public static final String coinName = "GroestlCoin";
     public static final String coinTicker = "GRS";
     public static final String coinURIScheme = "groestlcoin";
     public static final String cryptsyMarketId = "26";
@@ -34,10 +32,10 @@ public class CoinDefinition {
     public static final CoinPrecision coinPrecision = CoinPrecision.Coins;
 
 
-    public static final String BLOCKEXPLORER_BASE_URL_PROD = "http://dgc.blockr.io/";    //blockr.io
-    public static final String BLOCKEXPLORER_ADDRESS_PATH = "address/info/";             //blockr.io path
-    public static final String BLOCKEXPLORER_TRANSACTION_PATH = "tx/info/";              //blockr.io path
-    public static final String BLOCKEXPLORER_BLOCK_PATH = "block/info/";                 //blockr.io path
+    public static final String BLOCKEXPLORER_BASE_URL_PROD = "https://chainz.cryptoid.info/grs/";    //blockr.io
+    public static final String BLOCKEXPLORER_ADDRESS_PATH = "address.dws?";             //blockr.io path
+    public static final String BLOCKEXPLORER_TRANSACTION_PATH = "tx.dws?";              //blockr.io path
+    public static final String BLOCKEXPLORER_BLOCK_PATH = "block.dws?";                 //blockr.io path
     public static final String BLOCKEXPLORER_BASE_URL_TEST = BLOCKEXPLORER_BASE_URL_PROD;
 
     public static final String DONATION_ADDRESS = "FkknEYnex1MeZyPRnEebFK5ZBHHsFZbvaf";  //HashEngineering donation DGC address
@@ -136,7 +134,9 @@ public class CoinDefinition {
     //net.cpp strDNSSeed
     static public String[] dnsSeeds = new String[] {
             "groestlcoin.net",
-    "groestlcoin.org"
+    "groestlcoin.org",
+            "193.136.98.184",
+            "88.198.69.99"
 
     };
 

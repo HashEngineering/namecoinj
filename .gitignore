@@ -8,3 +8,7 @@ Thumbs.db
 *.chain
 *.spvchain
 *.wallet
+obj/
+libs/
+checkpoints
+checkpoints.txt

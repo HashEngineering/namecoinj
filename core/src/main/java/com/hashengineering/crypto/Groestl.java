@@ -1,7 +1,6 @@
 package com.hashengineering.crypto;
 
 import fr.cryptohash.Groestl512;
-import org.bitcoinj.core.Sha256Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ public class Groestl {
             }
 
         try {
-            System.loadLibrary("groestl");
+            System.loadLibrary("groestld");
             native_library_loaded = true;
         }
         catch(UnsatisfiedLinkError x)
@@ -49,13 +48,17 @@ public class Groestl {
 
     public static byte[] digest(byte[] input, int offset, int length)
     {
-        return groestl(input, offset, length);
-    }
-
-    public static byte[] digest(byte[] input) {
-        //long start = System.currentTimeMillis();
-        /*try {
-            return native_library_loaded ? skein_native(input) : skein(input);
+        //return groestl(input, offset, length);
+        try {
+            return native_library_loaded ? groestld_native(input, offset, length) : groestl(input, offset, length);
+            /*byte[] r1 = groestld_native(input, offset, length);
+            byte[] r2 = groestl(input, offset, length);
+            if(r1.equals(r2))
+            {
+                int x = 0;
+                ++x;
+            }
+            return r2;*/
         } catch (Exception e) {
             return null;
         }
@@ -63,11 +66,24 @@ public class Groestl {
             //long time = System.currentTimeMillis()-start;
             //log.info("X11 Hash time: {} ms per block", time);
         }
-        */
-        return groestl(input);
     }
 
-    static native byte [] groestl_native(byte [] input, int offset, int len);
+    public static byte[] digest(byte[] input) {
+        //long start = System.currentTimeMillis();
+        try {
+            return native_library_loaded ? groestld_native(input, 0, input.length) : groestl(input);
+        } catch (Exception e) {
+            return null;
+        }
+        finally {
+            //long time = System.currentTimeMillis()-start;
+            //log.info("X11 Hash time: {} ms per block", time);
+        }
+
+        //return groestl(input);
+    }
+
+    static native byte [] groestld_native(byte [] input, int offset, int len);
 
     static byte [] groestl(byte header[])
     {
