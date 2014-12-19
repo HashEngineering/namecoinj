@@ -16,12 +16,13 @@
 
 package org.bitcoinj.core;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.base.Objects;
+import com.hashengineering.crypto.Groestl;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * <p>In Bitcoin the following format is often used to represent some type of key:</p>
@@ -60,7 +61,8 @@ public class VersionedChecksummedBytes implements Serializable {
         byte[] addressBytes = new byte[1 + bytes.length + 4];
         addressBytes[0] = (byte) version;
         System.arraycopy(bytes, 0, addressBytes, 1, bytes.length);
-        byte[] checksum = Utils.doubleDigest(addressBytes, 0, bytes.length + 1);
+        //byte[] checksum = Utils.doubleDigest(addressBytes, 0, bytes.length + 1);
+        byte[] checksum = Groestl.digest(addressBytes, 0, bytes.length + 1);
         System.arraycopy(checksum, 0, addressBytes, bytes.length + 1, 4);
         return Base58.encode(addressBytes);
     }

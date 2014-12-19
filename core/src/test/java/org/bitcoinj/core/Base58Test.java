@@ -56,8 +56,14 @@ public class Base58Test extends TestCase {
         } catch (AddressFormatException e) {
             // expected
         }
+        ECKey key = new ECKey();
+        byte[] pub = key.getPubKey();
 
-        Base58.decodeChecked("4stwEBjT6FYyVV");
+        //from client
+        Base58.decodeChecked("FkknEYnex1MeZyPRnEebFK5ZBHHsFZbvaf");
+        //From app
+        Base58.decodeChecked("Fr5yywEHZm6XSfRX9stZWptLvKjzh6pTaq");
+
 
         // Checksum should fail.
         try {

@@ -232,7 +232,7 @@ public class Transaction extends ChildMessage implements Serializable {
     public Sha256Hash getHash() {
         if (hash == null) {
             byte[] bits = bitcoinSerialize();
-            hash = new Sha256Hash(reverseBytes(doubleDigest(bits)));
+            hash = new Sha256Hash(reverseBytes(singleDigest(bits, 0, bits.length)/*doubleDigest(bits)*/));
         }
         return hash;
     }

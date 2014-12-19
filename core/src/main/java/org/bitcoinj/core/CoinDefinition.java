@@ -149,8 +149,8 @@ public class CoinDefinition {
     public static final int testnetAddressHeader = 111;             //base58.h CBitcoinAddress::PUBKEY_ADDRESS_TEST
     public static final int testnetp2shHeader = 196;             //base58.h CBitcoinAddress::SCRIPT_ADDRESS_TEST
     public static final long testnetPacketMagic = 0x0b110907;      //0xfc, 0xc1, 0xb7, 0xdc
-    public static final String testnetGenesisHash = "0x00000b94ee7f94431dad6f1c72cabc18b6923a4fa648be1002938874deb4a265";
-    static public long testnetGenesisBlockDifficultyTarget = (0x1e0ffff0L);         //main.cpp: LoadBlockIndex
+    public static final String testnetGenesisHash = "00000b94ee7f94431dad6f1c72cabc18b6923a4fa648be1002938874deb4a265";
+    static public long testnetGenesisBlockDifficultyTarget = (0x1e0fffffL);         //main.cpp: LoadBlockIndex
     static public long testnetGenesisBlockTime = 1395342913L;                       //main.cpp: LoadBlockIndex
     static public long testnetGenesisBlockNonce = (873629);                         //main.cpp: LoadBlockIndex
 
