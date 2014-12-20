@@ -1022,7 +1022,9 @@ public class Transaction extends ChildMessage implements Serializable {
             uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
             // Note that this is NOT reversed to ensure it will be signed correctly. If it were to be printed out
             // however then we would expect that it is IS reversed.
-            Sha256Hash hash = new Sha256Hash(doubleDigest(bos.toByteArray()));
+            //Sha256Hash hash = new Sha256Hash(doubleDigest(bos.toByteArray()));
+            byte [] bytes = bos.toByteArray();
+            Sha256Hash hash = new Sha256Hash(singleDigest(bytes, 0, bytes.length));
             bos.close();
 
             // Put the transaction back to how we found it.

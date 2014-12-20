@@ -40,13 +40,14 @@ public class CoinDefinition {
 
     public static final String DONATION_ADDRESS = "FkknEYnex1MeZyPRnEebFK5ZBHHsFZbvaf";  //HashEngineering donation DGC address
 
-    public static final String UNSPENT_API_URL = "http://dgc.blockr.io/api/v1/address/unspent/";
+    public static final String UNSPENT_API_URL = "https://chainz.cryptoid.info/grs/api.dws?q=unspent";
     public enum UnspentAPIType {
         BitEasy,
         Blockr,
-        Abe
+        Abe,
+        Cryptoid,
     };
-    public static final UnspentAPIType UnspentAPI = UnspentAPIType.Blockr;
+    public static final UnspentAPIType UnspentAPI = UnspentAPIType.Cryptoid;
 
     enum CoinHash {
         SHA256,
