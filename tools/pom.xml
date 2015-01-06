@@ -20,15 +20,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.bitcoinj</groupId>
-    <artifactId>groestlcoinj-parent</artifactId>
+    <artifactId>namecoinj-parent</artifactId>
     <version>0.12.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>groestlcoinj-tools</artifactId>
+  <artifactId>namecoinj-tools</artifactId>
 
-  <name>groestlcoinj Tools</name>
-  <description>A collection of useful tools that use the groestlcoinj library to perform wallet operations</description>
+  <name>namecoinj Tools</name>
+  <description>A collection of useful tools that use the namecoinj library to perform wallet operations</description>
 
   <build>
 
@@ -75,7 +75,7 @@
   <dependencies>
     <dependency>
       <groupId>org.bitcoinj</groupId>
-      <artifactId>groestlcoinj-core</artifactId>
+      <artifactId>namecoinj-core</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>

@@ -21,21 +21,21 @@
     <parent>
 
         <groupId>org.bitcoinj</groupId>
-        <artifactId>groestlcoinj-parent</artifactId>
+        <artifactId>namecoinj-parent</artifactId>
         <version>0.12.2</version>
 
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>groestlcoinj-examples</artifactId>
+    <artifactId>namecoinj-examples</artifactId>
 
-    <name>groestlcoinj Examples</name>
-    <description>A collection of examples using the groestlcoinj library</description>
+    <name>namecoinj Examples</name>
+    <description>A collection of examples using the namecoinj library</description>
 
     <dependencies>
         <dependency>
             <groupId>org.bitcoinj</groupId>
-            <artifactId>groestlcoinj-core</artifactId>
+            <artifactId>namecoinj-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
