@@ -19,7 +19,7 @@ package org.bitcoinj.core;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.hashengineering.crypto.Groestl;
+
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
 import org.slf4j.Logger;
@@ -84,11 +84,10 @@ public class Block extends Message {
 
     /** If null, it means this object holds only the headers. */
     List<Transaction> transactions;
-
+    private transient boolean lastByteNull;
     /** Stores the hash of the block. If null, getHash() will recalculate it. */
     private transient Sha256Hash hash;
-    private transient Sha256Hash scryptHash;
-
+    private transient BlockMergeMined mmBlock;
     private transient boolean headerParsed;
     private transient boolean transactionsParsed;
 
@@ -132,7 +131,11 @@ public class Block extends Message {
             throws ProtocolException {
         super(params, payloadBytes, 0, parseLazy, parseRetain, length);
     }
+    public Block(NetworkParameters params, byte[] payloadBytes, byte[] bytes, boolean parseLazy, boolean parseRetain, int length, int cursor)
+            throws ProtocolException {
+        super(params, bytes, payloadBytes, 0, parseLazy, parseRetain, length, cursor);
 
+    }
 
     /**
      * Construct a block initialized with all the given fields.
@@ -170,7 +173,6 @@ public class Block extends Message {
      */
     public Coin getBlockInflation(int height) {
         return FIFTY_COINS.shiftRight(height / params.getSubsidyDecreaseBlockCount());
-        //    return /*Utils.toNanoCoins(*/CoinDefinition.GetBlockReward(height)/*, 0)*/;
     }
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
@@ -192,8 +194,43 @@ public class Block extends Message {
         difficultyTarget = readUint32();
         nonce = readUint32();
 
-        hash = new Sha256Hash(Utils.reverseBytes(Groestl.digest(payload, offset, cursor)/*Utils.doubleDigest(payload, offset, cursor)*/));
+        hash = new Sha256Hash(Utils.reverseBytes(Utils.doubleDigest(payload, offset, cursor)));
 
+
+        if((version & BlockMergeMined.BLOCK_VERSION_AUXPOW) > 0 && (mmBlock == null || !mmBlock.IsValid()))
+        {
+            // if the block passed in is not just the headers, but header/mminfo/transactions
+            // then payloadBytes is null so assume its in the bytes information (if bytes has more than just the header)
+            byte[] bytesforMMBlock = this.payloadBytes;
+            int mmCursor = this.payloadCursor;
+            if(bytesforMMBlock == null)
+            {
+                if(payload != null && payload.length > (Block.HEADER_SIZE+1))
+                {
+                    mmCursor = cursor;
+                    bytesforMMBlock = this.payload;
+                }
+            }
+
+            mmBlock = new BlockMergeMined(params, bytesforMMBlock, mmCursor, this);
+
+            // first transaction byte which should be null for header only blocks
+            if(mmBlock.IsValid() && bytesforMMBlock != null && bytesforMMBlock.length > (mmCursor + mmBlock.getMessageSize()) && bytesforMMBlock[mmCursor + mmBlock.getMessageSize()] == 0 )
+            {
+                lastByteNull = true;
+            }
+        }
+        else
+        {
+            // first transaction byte which should be null for header only blocks
+            // length is only set for blocks that are passed in as headers only (80 bytes)
+            if(payload != null && payload.length > cursor && payload[cursor] == 0 && length == Block.HEADER_SIZE )
+            {
+                lastByteNull = true;
+
+
+            }
+        }
         headerParsed = true;
         headerBytesValid = parseRetain;
     }
@@ -204,11 +241,19 @@ public class Block extends Message {
 
         cursor = offset + HEADER_SIZE;
         optimalEncodingMessageSize = HEADER_SIZE;
-        if (payload.length == cursor) {
+        if (payload.length == cursor || isLastByteNull()) {
             // This message is just a header, it has no transactions.
             transactionsParsed = true;
             transactionBytesValid = false;
             return;
+        }
+        if(isMMBlock())
+        {
+            cursor += getMMBlockSize();
+        }
+        if(cursor > payload.length)
+        {
+            throw new ProtocolException("Trying to parse a block for transactions passed the end of the size of the block");
         }
 
         int numTransactions = (int) readVarInt();
@@ -256,7 +301,7 @@ public class Block extends Message {
             parseTransactions();
             length = cursor - offset;
         } else {
-            transactionBytesValid = !transactionsParsed || parseRetain && length > HEADER_SIZE;
+            transactionBytesValid = !transactionsParsed || parseRetain && length > (HEADER_SIZE+getMMBlockSize());
         }
         headerBytesValid = !headerParsed || parseRetain && length >= HEADER_SIZE;
     }
@@ -401,8 +446,8 @@ public class Block extends Message {
         }
 
         // confirmed we must have transactions either cached or as objects.
-        if (transactionBytesValid && payload != null && payload.length >= offset + length) {
-            stream.write(payload, offset + HEADER_SIZE, length - HEADER_SIZE);
+        if (transactionBytesValid && payload != null && payload.length >= offset + length + getMMBlockSize()) {
+            stream.write(payload, offset + HEADER_SIZE + getMMBlockSize(), length - HEADER_SIZE -  getMMBlockSize());
             return;
         }
 
@@ -512,7 +557,7 @@ public class Block extends Message {
         try {
             ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
             writeHeader(bos);
-            return new Sha256Hash(Utils.reverseBytes(Groestl.digest(bos.toByteArray())/*doubleDigest(bos.toByteArray())*/));
+            return new Sha256Hash(Utils.reverseBytes(Utils.doubleDigest(bos.toByteArray())));
         } catch (IOException e) {
             throw new RuntimeException(e); // Cannot happen.
         }
@@ -619,6 +664,12 @@ public class Block extends Message {
         s.append("   nonce: ");
         s.append(nonce);
         s.append("\n");
+        if(isMMBlock())
+        {
+            s.append("   Merged-mining info: \n");
+            s.append(mmBlock.toString());
+            s.append("\n");
+        }
         if (transactions != null && transactions.size() > 0) {
             s.append("   with ").append(transactions.size()).append(" transaction(s):\n");
             for (Transaction tx : transactions) {
@@ -674,12 +725,28 @@ public class Block extends Message {
         // To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         // field is of the right value. This requires us to have the preceeding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
-        BigInteger h = null;
+        BigInteger hash;
+        // merged-mined
+        if(time >= BlockMergeMined.MERGED_MINE_START_TIME)
+        {
+            if(mmBlock != null && mmBlock.IsValid())
+            {
+                hash = mmBlock.getParentBlockHash().toBigInteger();
+                mmBlock.checkProofOfWork(throwException);
 
-        h = getHash().toBigInteger();
+            }
+            else
+                hash = getHash().toBigInteger();
+        }
+        else
+        {
+            if(mmBlock != null && mmBlock.IsValid())
+                throw new VerificationException("Merged-mine block was found before merged-mining was turned on at time: " + BlockMergeMined.MERGED_MINE_START_TIME + "(Block 25000)");
+            hash = getHash().toBigInteger();
+        }
 
 
-        if (h.compareTo(target) > 0) {
+        if (hash.compareTo(target) > 0) {
             // Proof of work check failed!
             if (throwException)
                 throw new VerificationException("Hash is higher than target: " + getHashAsString() + " vs "
@@ -913,7 +980,6 @@ public class Block extends Message {
         unCacheHeader();
         this.prevBlockHash = prevBlockHash;
         this.hash = null;
-        this.scryptHash = null;
     }
 
     /**
@@ -936,7 +1002,6 @@ public class Block extends Message {
         unCacheHeader();
         this.time = time;
         this.hash = null;
-        this.scryptHash = null;
     }
 
     /**
@@ -958,7 +1023,6 @@ public class Block extends Message {
         unCacheHeader();
         this.difficultyTarget = compactForm;
         this.hash = null;
-        this.scryptHash = null;
     }
 
     /**
@@ -975,7 +1039,6 @@ public class Block extends Message {
         unCacheHeader();
         this.nonce = nonce;
         this.hash = null;
-        this.scryptHash = null;
     }
 
     /** Returns an immutable list of transactions held in this block. */
@@ -1116,42 +1179,22 @@ public class Block extends Message {
     boolean isTransactionBytesValid() {
         return transactionBytesValid;
     }
-
-    public static final int ALGO_SHA256D = 0;
-    public static final int ALGO_SCRYPT  = 1;
-    public static final int ALGO_X11 = 2;
-    public static final int NUM_ALGOS = 3;
-
-    public static int BLOCK_VERSION_DEFAULT = 1;
-
-    // algo
-    public static final int             BLOCK_VERSION_ALGO           = (7 << 9);
-    public static final int             BLOCK_VERSION_SHA256D         = (1 << 9);
-    public static final int             BLOCK_VERSION_X11        = (2 << 9);
-
-
-    public static int GetAlgo(long nVersion)
+    int getMMBlockSize()
     {
-        switch ((int)nVersion & BLOCK_VERSION_ALGO)
+        if(mmBlock != null)
         {
-            case 1:
-                return ALGO_SCRYPT;
-            case BLOCK_VERSION_SHA256D:
-                return ALGO_SHA256D;
-            case BLOCK_VERSION_X11:
-                return ALGO_X11;
+            return mmBlock.getMessageSize();
         }
-        return ALGO_SCRYPT;
+        return 0;
     }
-
-    public int getAlgo()
+    public boolean isLastByteNull()
     {
-        return GetAlgo(version);
+        return lastByteNull;
     }
-    String [] algoNames = {"sha256d", "scrypt", "x11"};
-
-    public String getAlgoName() { return algoNames[GetAlgo(version)]; }
-
+    boolean isMMBlock(){
+        maybeParseHeader();
+        return ((version & BlockMergeMined.BLOCK_VERSION_AUXPOW) > 0) && mmBlock.IsValid();
+    }
     public void setVersion(int v)
     {
         version = v;

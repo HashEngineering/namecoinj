@@ -119,6 +119,7 @@ public class StoredBlock implements Serializable {
     }
 
     /** Serializes the stored block to a custom packed format. Used by {@link CheckpointManager}. */
+    //TODO: add the auxpow if available
     public void serializeCompact(ByteBuffer buffer) {
         byte[] chainWorkBytes = getChainWork().toByteArray();
         checkState(chainWorkBytes.length <= CHAIN_WORK_BYTES, "Ran out of space to store chain work!");
@@ -135,6 +136,7 @@ public class StoredBlock implements Serializable {
     }
 
     /** De-serializes the stored block from a custom packed format. Used by {@link CheckpointManager}. */
+    //TODO: add the auxpow if available
     public static StoredBlock deserializeCompact(NetworkParameters params, ByteBuffer buffer) throws ProtocolException {
         byte[] chainWorkBytes = new byte[StoredBlock.CHAIN_WORK_BYTES];
         buffer.get(chainWorkBytes);

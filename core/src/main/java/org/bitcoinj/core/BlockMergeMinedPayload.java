@@ -91,7 +91,7 @@ public class BlockMergeMinedPayload  {
         // Parent Block Header:
         parentBlockHeader = new Block(this.params, null, header, false, false, 80, 0);
         // reads in the block information as needed
-        Sha256Hash hashOfParentBlockHeaderCalculated =   parentBlockHeader.calculateHash();
+        Sha256Hash hashOfParentBlockHeaderCalculated =   parentBlockHeader.getHash(); //calculateHash();
         String str = parentBlockCoinBaseTx.toString();
         String txHash = parentBlockCoinBaseTx.getHashAsString();
         /*Note that the block_hash element is not needed as you have the full parent_block header element and can calculate the hash from that. The current Namecoin client doesn't check this field for validity, and as such some AuxPOW blocks have it little-endian, and some have it big-endian. */
@@ -100,7 +100,8 @@ public class BlockMergeMinedPayload  {
         {
             Sha256Hash reversedHashOfParentBlockHeader =  new Sha256Hash(Utils.reverseBytes(hashOfParentBlockHeader.getBytes()));
             if(!reversedHashOfParentBlockHeader.equals(hashOfParentBlockHeaderCalculated)){
-                throw new ProtocolException("Hash of parent block header calculated does not match hash of parent block header received in merged-mining header.");
+                //throw new ProtocolException("Hash of parent block header calculated does not match hash of parent block header received in merged-mining header.");
+                //Namecoin doesn't check this field
             }
             else
             {

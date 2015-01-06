@@ -101,7 +101,7 @@ public abstract class NetworkParameters implements Serializable {
     //TODO:  put these bytes into the CoinDefinition
     private static Block createGenesis(NetworkParameters n) {
         Block genesisBlock = new Block(n);
-        genesisBlock.setVersion(CoinDefinition.genesisBlockVersion);
+        //genesisBlock.setVersion(CoinDefinition.genesisBlockVersion);
         Transaction t = new Transaction(n);
         try {
             // A script containing the difficulty bits and the following message:

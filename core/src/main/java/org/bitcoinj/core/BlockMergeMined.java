@@ -34,10 +34,10 @@ import java.util.Date;
  */
 public class BlockMergeMined {
     private static final Logger log = LoggerFactory.getLogger(BlockMergeMined.class);
-    public static final long DEVCOIN_MERGED_MINE_START_TIME = 1325974424L;
+    public static final long MERGED_MINE_START_TIME = 0;
     public static final long BLOCK_VERSION_AUXPOW = (1 << 8);
     public static final long BLOCK_VERSION_CHAIN_START = (1 << 16);
-    public static final long DEVCOIN_MERGED_MINE_CHAIN_ID = 0x0004;
+    public static final long MERGED_MINE_CHAIN_ID = 0x0001;
     public static final byte pchMergedMiningHeader[] = { (byte)0xfa, (byte)0xbe, 'm', 'm' } ;
     // Fields defined as part of the protocol format.
     // modifiers
@@ -73,7 +73,8 @@ public class BlockMergeMined {
     }
     public Sha256Hash getParentBlockHash()
     {
-        return payload.hashOfParentBlockHeader;
+        //return payload.hashOfParentBlockHeader;
+        return payload.parentBlockHeader.getHash(); //For namecoin, we must always check the block header hash, not the value included in the block header
     }
     /** Returns the version of the block data structure as defined by the Bitcoin protocol. */
     public long getVersion() {
@@ -133,24 +134,27 @@ public class BlockMergeMined {
     /** Returns true if the hash of the block is OK (lower than difficulty target). */
 
     protected boolean checkProofOfWork(boolean throwException) throws VerificationException {
-        if(GetChainID() != DEVCOIN_MERGED_MINE_CHAIN_ID)
+        if(GetChainID() != MERGED_MINE_CHAIN_ID)
         {
-            throw new VerificationException("Merged-mine block does not have the correct chain ID required for Devcoin blocks, Current ID: " + GetChainID() + " Expected: " + DEVCOIN_MERGED_MINE_CHAIN_ID);
+            throw new VerificationException("Merged-mine block does not have the correct chain ID required for Devcoin blocks, Current ID: " + GetChainID() + " Expected: " + MERGED_MINE_CHAIN_ID);
         }
-        if(GetChainID(payload.parentBlockHeader.getVersion()) == DEVCOIN_MERGED_MINE_CHAIN_ID)
+        if(GetChainID(payload.parentBlockHeader.getVersion()) == MERGED_MINE_CHAIN_ID)
         {
-            throw new VerificationException("Merged-mine block Aux POW parent has our chain ID: " + DEVCOIN_MERGED_MINE_CHAIN_ID);
+            throw new VerificationException("Merged-mine block Aux POW parent has our chain ID: " + MERGED_MINE_CHAIN_ID);
         }
         TransactionInput coinbaseInput = payload.parentBlockCoinBaseTx.getInput(0);
         byte[] scriptBytes = coinbaseInput.getScriptBytes();
         int headerIndex = Bytes.indexOf(scriptBytes, this.pchMergedMiningHeader);
         if(headerIndex > 0)
         {
-            byte[] remainingBytes = java.util.Arrays.copyOfRange(scriptBytes, headerIndex, scriptBytes.length - headerIndex);
-            headerIndex = Bytes.indexOf(remainingBytes, this.pchMergedMiningHeader);
-            if(headerIndex > 0)
+            if((scriptBytes.length - headerIndex) >= headerIndex)
             {
-                throw new VerificationException("Multiple merged mining headers in coinbase");
+                byte[] remainingBytes = java.util.Arrays.copyOfRange(scriptBytes, headerIndex, scriptBytes.length - headerIndex);
+                headerIndex = Bytes.indexOf(remainingBytes, this.pchMergedMiningHeader);
+                if(headerIndex > 0)
+                {
+                    throw new VerificationException("Multiple merged mining headers in coinbase");
+                }
             }
             if(!coinbaseInput.isCoinBase())
             {

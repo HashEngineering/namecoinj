@@ -19,7 +19,6 @@ package org.bitcoinj.params;
 
 import org.bitcoinj.core.CoinDefinition;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Utils;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -49,7 +48,7 @@ public class TestNet3Params extends NetworkParameters {
         genesisBlock.setNonce(CoinDefinition.testnetGenesisBlockNonce);
         spendableCoinbaseDepth = 100;
         subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
-        genesisBlock.setMerkleRoot(new Sha256Hash(CoinDefinition.genesisMerkleRoot));
+        //genesisBlock.setMerkleRoot(new Sha256Hash(CoinDefinition.genesisMerkleRoot));
         String genesisHash = genesisBlock.getHashAsString();
 
         if(CoinDefinition.supportsTestNet)

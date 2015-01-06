@@ -16,8 +16,6 @@
 
 package org.bitcoinj.core;
 
-import com.hashengineering.crypto.Groestl;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -155,8 +153,7 @@ public class Base58 {
         byte[] bytes = copyOfRange(tmp, 0, tmp.length - 4);
         byte[] checksum = copyOfRange(tmp, tmp.length - 4, tmp.length);
         
-        //tmp = Utils.doubleDigest(bytes);
-        tmp = Groestl.digest(bytes);
+        tmp = Utils.doubleDigest(bytes);
         byte[] hash = copyOfRange(tmp, 0, 4);
         if (!Arrays.equals(checksum, hash)) 
             throw new AddressFormatException("Checksum does not validate");
