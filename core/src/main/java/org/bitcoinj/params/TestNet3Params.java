@@ -34,10 +34,10 @@ public class TestNet3Params extends NetworkParameters {
 
         // Genesis hash is 000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943
 
-        packetMagic = 0x0b110907;
+        packetMagic = CoinDefinition.testnetPacketMagic;
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
-        maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
+        maxTarget = CoinDefinition.proofOfWorkLimit;
         port = 18333;
         addressHeader = CoinDefinition.testnetAddressHeader;
         p2shHeader = CoinDefinition.testnetp2shHeader;
@@ -46,7 +46,7 @@ public class TestNet3Params extends NetworkParameters {
         genesisBlock.setTime(CoinDefinition.testnetGenesisBlockTime);
         genesisBlock.setDifficultyTarget(CoinDefinition.testnetGenesisBlockDifficultyTarget);
         genesisBlock.setNonce(CoinDefinition.testnetGenesisBlockNonce);
-        spendableCoinbaseDepth = 100;
+        spendableCoinbaseDepth = CoinDefinition.spendableCoinbaseDepth;
         subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
         //genesisBlock.setMerkleRoot(new Sha256Hash(CoinDefinition.genesisMerkleRoot));
         String genesisHash = genesisBlock.getHashAsString();

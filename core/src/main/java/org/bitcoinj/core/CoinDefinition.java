@@ -131,7 +131,7 @@ public class CoinDefinition {
     //
     // TestNet
     //
-    public static final boolean supportsTestNet = true;
+    public static final boolean supportsTestNet = false;
     public static final int testnetAddressHeader = 111;             //base58.h CBitcoinAddress::PUBKEY_ADDRESS_TEST
     public static final int testnetp2shHeader = 196;             //base58.h CBitcoinAddress::SCRIPT_ADDRESS_TEST
     public static final long testnetPacketMagic = 0xfabfb5da;      //0xfc, 0xc1, 0xb7, 0xdc
