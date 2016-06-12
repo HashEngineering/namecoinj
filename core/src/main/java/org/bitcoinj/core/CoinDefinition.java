@@ -32,7 +32,7 @@ public class CoinDefinition {
     public static final CoinPrecision coinPrecision = CoinPrecision.Coins;
 
 
-    public static final String BLOCKEXPLORER_BASE_URL_PROD = "http://bitcoin-abe.info/chain/Namecoin/";    //blockr.io
+    public static final String BLOCKEXPLORER_BASE_URL_PROD = "https://namecha.in/";    //blockr.io
     public static final String BLOCKEXPLORER_ADDRESS_PATH = "address/";             //blockr.io path
     public static final String BLOCKEXPLORER_TRANSACTION_PATH = "tx/";              //blockr.io path
     public static final String BLOCKEXPLORER_BLOCK_PATH = "block/";                 //blockr.io path
@@ -64,7 +64,7 @@ public class CoinDefinition {
     public static final int INTERVAL = TARGET_TIMESPAN / TARGET_SPACING;  //
 
     public static final int getIntervalCheckpoints() {
-            return 2016;    //1080
+            return INTERVAL;    //
 
     }
     public static int getFullRetargetStartBlock()

@@ -876,6 +876,8 @@ public abstract class AbstractBlockChain {
                         "Difficulty transition point but we did not find a way back to the genesis block.");
             }
             cursor = blockStore.get(cursor.getHeader().getPrevBlockHash());
+            if(cursor == null)
+                return; // the first checkpoint will not work due to an off by one thing
         }
         long elapsed = System.currentTimeMillis() - now;
         if (elapsed > 50)
